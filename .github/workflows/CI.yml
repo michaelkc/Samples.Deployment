@@ -1,4 +1,4 @@
-name: CICD
+name: CI
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
         required: true
         type: string
 jobs:
-  ci-cd:
+  CI:
     permissions: write-all
     name: print-token
     environment: ${{ github.event.inputs.environment }}
