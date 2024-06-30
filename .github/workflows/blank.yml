@@ -1,0 +1,53 @@
+name: Release and Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: string
+
+jobs:
+  release-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Calculate Version Number
+      id: calc_version
+      run: |
+        # Example version calculation: v<latest_tag>.<commit_count>
+        latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        commit_count=$(git rev-list --count HEAD)
+        version="${latest_tag}.${commit_count}"
+        echo "Calculated version: $version"
+        echo "::set-output name=version::$version"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.calc_version.outputs.version }}
+        release_name: Release ${{ steps.calc_version.outputs.version }}
+        body: |
+          Release of version ${{ steps.calc_version.outputs.version }}.
+        draft: false
+        prerelease: false
+
+    - name: Deploy to Environment
+      id: deploy
+      run: |
+        environment=${{ github.event.inputs.environment }}
+        version=${{ steps.calc_version.outputs.version }}
+        deployment_id=$(curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/deployments \
+          -d "{\"ref\":\"${{ github.sha }}\",\"environment\":\"${environment}\",\"description\":\"Deployment of version ${version}\"}" \
+          | jq -r '.id')
+        echo "Created deployment with ID: $deployment_id"
