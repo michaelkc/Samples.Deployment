@@ -3,11 +3,13 @@ on: deployment
 jobs:
 
   production:
-    if: github.event.deployment.environment == 'prod'
     env:
       DEPLOY_ID: ${{ github.event.deployment.id }}
       DEPLOY_TOKEN: ${{ github.token }}
+      DEPLOY_TARGET_ENV:  ${{ github.event.deployment.environment }}
     runs-on: ubuntu-latest
+    permissions: 
+      deployments: write
     steps:
 
       - name: Simulate a deployment
@@ -19,9 +21,9 @@ jobs:
       - name: Deployment success
         if: success()
         run: |
-          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "prod", "state": "success"}'
+          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "$[DEPLOY_TARGET_ENV}", "state": "success"}'
 
       - name: Deployment failure
         if: failure()
         run: |
-          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "prod", "state": "failure"}'
+          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "$[DEPLOY_TARGET_ENV}", "state": "failure"}'
