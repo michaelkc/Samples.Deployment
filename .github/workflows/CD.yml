@@ -1,8 +1,7 @@
 name: CD
 
 on:
-  deployment:
-    types: [created]
+  deployment
 
 jobs:
   CD:
