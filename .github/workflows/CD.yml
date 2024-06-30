@@ -1,7 +1,7 @@
 name: CD
 
 on:
-  deployment
+  deployment:
 
 jobs:
   CD:
