@@ -14,15 +14,12 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Calculate Version Number
       id: calc_version
       run: |
-        # Example version calculation: v<latest_tag>.<commit_count>
-        latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-        commit_count=$(git rev-list --count HEAD)
-        version="${latest_tag}.${commit_count}"
+        version="v1.0.${{ github.run_number }}"
         echo "Calculated version: $version"
         echo "::set-output name=version::$version"
 
