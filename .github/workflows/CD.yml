@@ -1,0 +1,40 @@
+name: CD
+
+on:
+  deployment:
+    types: [created]
+
+jobs:
+  CD:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Print Context Information
+      env:
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
+        GITHUB_EVENT_PATH: ${{ github.event_path }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_SHA: ${{ github.sha }}
+        GITHUB_REF: ${{ github.ref }}
+      run: |
+        echo "Event Name: $GITHUB_EVENT_NAME"
+        echo "Event Path: $GITHUB_EVENT_PATH"
+        echo "Repository: $GITHUB_REPOSITORY"
+        echo "Actor: $GITHUB_ACTOR"
+        echo "SHA: $GITHUB_SHA"
+        echo "Ref: $GITHUB_REF"
+        echo "Event Context:"
+        cat $GITHUB_EVENT_PATH
+
+    - name: Mark Deployment as Succeeded
+      id: mark_deployment
+      run: |
+        deployment_id=$(jq -r .deployment.id < $GITHUB_EVENT_PATH)
+        environment=$(jq -r .deployment.environment < $GITHUB_EVENT_PATH)
+        curl -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/deployments/$deployment_id/statuses \
+          -d "{\"state\":\"success\",\"log_url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"description\":\"Deployment finished successfully\",\"environment\":\"$environment\"}"
