@@ -22,9 +22,9 @@ jobs:
       - name: Deployment success
         if: success()
         run: |
-          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "${DEPLOY_TARGET_ENV}", "state": "success"}'
+          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "${{ github.event.deployment.environment }}", "state": "success"}'
 
       - name: Deployment failure
         if: failure()
         run: |
-          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "${DEPLOY_TARGET_ENV}", "state": "failure"}'
+          curl -X POST -H "Authorization: token ${DEPLOY_TOKEN}" -H "Accept: application/vnd.github.flash-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOY_ID}/statuses --data '{"environment": "${{ github.event.deployment.environment }}", "state": "failure"}'
