@@ -1,0 +1,101 @@
+﻿@page "/deployment-grid"
+@attribute [StreamRendering]
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using global::blazorpus.BlazorPus
+@inject DeploymentMatrixService _deploymentMatrix
+
+<PageTitle>Deployment Grid</PageTitle>
+<h1>Deployment Grid</h1>
+
+<QuickGrid Items="@_deploymentViewModels">
+    <TemplateColumn Title="Release">
+        <div title="@context.Release.DeploymentCreateDate.ToString("g")">@context.Release.ReleaseName.Substring(0, 7)</div>
+    </TemplateColumn>
+    <TemplateColumn Title="Dev">
+        @RenderStatus(context.Release, context.DevStatus, "Dev")
+    </TemplateColumn>
+    <TemplateColumn Title="DevTest">
+        @RenderStatus(context.Release, context.DevTestStatus, "DevTest")
+    </TemplateColumn>
+    <TemplateColumn Title="SI">
+        @RenderStatus(context.Release, context.SiStatus, "SI")
+    </TemplateColumn>
+    <TemplateColumn Title="Prod">
+        @RenderStatus(context.Release, context.ProdStatus, "Prod")
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+
+    private IQueryable<DeploymentViewModel> _deploymentViewModels = Array.Empty<DeploymentViewModel>().AsQueryable();
+
+    protected override async Task OnInitializedAsync() 
+    {
+        var matrix = await _deploymentMatrix.Get();
+        _deploymentViewModels = matrix
+            .Select(row => new DeploymentViewModel
+                {
+                    Release = row[0],
+                    DevStatus = row[0].Status,
+                    DevTestStatus = row[1].Status,
+                    SiStatus = row[2].Status,
+                    ProdStatus = row[3].Status
+                })
+                .ToList()
+                .AsQueryable();
+    }
+
+    private RenderFragment RenderStatus(ReleaseDeployment release, ReleaseDeploymentStatus status, string targetEnv)
+    {
+        return builder =>
+        {
+            int i = 0;
+            if (status.DeployedAt != null)
+            {
+                builder.OpenElement(i++, "div");
+                builder.AddAttribute(i++, "style", $"display: flex;align-items: center;");
+                builder.OpenElement(i++, "div");
+                builder.AddAttribute(i++, "style", $"margin-right: auto; padding-right: 5px;");
+                builder.OpenElement(i++, "i");
+                builder.AddAttribute(i++, "class", "fa-solid fa-square-check fa-2x");
+                builder.AddAttribute(i++, "style", $"color: {ColorFromStatus(status.Status)};");
+                builder.CloseElement();
+                builder.CloseElement();
+                builder.OpenElement(i++, "div");
+                builder.OpenElement(i++, "strong");
+                builder.AddContent(i++, $"{release.ReleaseName.Substring(0, 7)}");
+                builder.CloseElement();
+                builder.OpenElement(i++, "br");
+                builder.CloseElement();
+                builder.OpenElement(i++, "small");
+                builder.AddAttribute(i++, "class", "text-muted");
+                builder.AddContent(i++, $"{status.DeployedAt?.ToLocalTime().ToString("g")}");
+                builder.CloseElement();
+                builder.CloseElement();
+                builder.CloseElement();
+            }
+            else
+            {
+                builder.OpenElement(i++, "div");
+                builder.OpenElement(i++, "button");
+                builder.AddAttribute(i++, "type", "button");
+                builder.AddAttribute(i++, "class", "btn btn-primary");
+                builder.AddAttribute(i++, "title", $"{release.ReleaseName.Substring(0, 7)} to {targetEnv}");
+                builder.AddContent(i++, "Deploy");
+                builder.CloseElement();
+                builder.CloseElement();
+            }
+        };
+    }
+
+    private string ColorFromStatus(string status)
+    {
+        return status switch
+        {
+            "success" => "green",
+            "in-progress" => "Goldenrod",
+            "failed" => "red",
+            _ => "Goldenrod"
+        };
+    }
+}
