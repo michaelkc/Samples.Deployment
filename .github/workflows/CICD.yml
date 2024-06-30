@@ -1,4 +1,4 @@
-name: Release and Deploy
+name: CICD
 
 on:
   workflow_dispatch:
@@ -7,9 +7,11 @@ on:
         description: 'Deployment environment'
         required: true
         type: string
-
 jobs:
-  release-and-deploy:
+  ci-cd:
+    permissions: write-all
+    name: print-token
+    environment: ${{ github.event.inputs.environment }}
     runs-on: ubuntu-latest
 
     steps:
