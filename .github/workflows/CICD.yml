@@ -15,9 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-
     - name: Calculate Version Number
       id: calc_version
       run: |
