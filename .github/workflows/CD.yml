@@ -1,8 +1,8 @@
-name: Deploy
+name: CD
 on: deployment
 jobs:
 
-  production:
+  CD:
     env:
       DEPLOY_ID: ${{ github.event.deployment.id }}
       DEPLOY_TOKEN: ${{ github.token }}
@@ -14,6 +14,7 @@ jobs:
 
       - name: Simulate a deployment
         run: |
+          echo "Doing a fake deployment of ref ${{ github.event.deployment.ref }} / sha ${{ github.event.deployment.sha }} to ${{ github.event.deployment.environment }}"
           echo "TODO test"
           echo "TODO build"
           echo "TODO deploy"
