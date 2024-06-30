@@ -1,0 +1,32 @@
+﻿<div style="display: flex; align-items: center;">
+    <div style="margin-right: auto; padding-right: 5px;">
+        <i class="fa-solid fa-square-check fa-2x" style="color: @ColorFromStatus(this.Status);"></i>
+    </div>
+    <div>
+        <strong>@ReleaseName.Substring(0,7)</strong>
+        <br>
+        <small class="text-muted">@(DeployedAt?.ToLocalTime().ToString("g") ?? "")</small>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public string Environment { get; set; }
+    [Parameter]
+    public string Status { get; set; }
+    [Parameter]
+    public string ReleaseName { get; set; }
+    [Parameter]
+    public DateTimeOffset? DeployedAt { get; set; }
+
+    private string ColorFromStatus(string status)
+    {
+        return status switch
+        {
+            "success" => "green",
+            "in-progress" => "goldenrod",
+            "failed" => "red",
+            _ => "goldenrod"
+        };
+    }
+
+}

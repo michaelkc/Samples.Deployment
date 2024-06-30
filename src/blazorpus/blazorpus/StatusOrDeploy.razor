@@ -1,0 +1,22 @@
+﻿@if (DeployedAt == null)
+{
+    <DeployButton Environment="@Environment" GitSha="@GitSha" />
+}
+else
+{
+    <DeployStatus Environment="@Environment" Status="@Status" ReleaseName="@ReleaseName" DeployedAt="@DeployedAt" />
+}
+
+@code {
+    [Parameter]
+    public string Environment { get; set; }
+    [Parameter]
+    public string Status { get; set; }
+    [Parameter]
+    public string ReleaseName { get; set; }
+    [Parameter]
+    public DateTimeOffset? DeployedAt { get; set; }
+    [Parameter]
+    public string GitSha { get; set; }
+
+}

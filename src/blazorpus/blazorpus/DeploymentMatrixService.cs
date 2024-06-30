@@ -17,7 +17,7 @@ public class DeploymentMatrixService
     public async Task<List<List<ReleaseDeployment>>> Get()
     {
         var environments = (await GetDisplayEnvironments());
-        var deployments = await releaseDeploymentsRepo.GetDeployments2();
+        var deployments = await releaseDeploymentsRepo.GetDeployments();
         var groupedByRelease = deployments
             .GroupBy(d => d.ReleaseName)
             .OrderByDescending(g => g.Min(d => d.DeploymentCreateDate))

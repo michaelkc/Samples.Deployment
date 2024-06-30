@@ -1,18 +1,17 @@
 ﻿using Octokit;
 using Octokit.Models.Response;
+using System.Collections.ObjectModel;
 
 namespace blazorpus.BlazorPus;
 
 public class ReleaseDeploymentsRepository
 {
     private readonly GitHubClient _client;
-    private string? _pat;
     private string? _repo;
     private readonly string? _owner;
 
     public ReleaseDeploymentsRepository(IConfiguration configuration, GitHubClient gitHubClient)
     {
-        _pat = configuration["GitHub:PersonalAccessToken"];
         _repo = configuration["GitHub:Repo"];
         _owner = configuration["GitHub:Owner"];
         _client = gitHubClient;
@@ -24,7 +23,21 @@ public class ReleaseDeploymentsRepository
         return environments.Environments;
     }
 
-    public async Task<IReadOnlyList<ReleaseDeployment>> GetDeployments2()
+    public async Task Deploy(string gitSha, string environment)
+    {
+
+        //gitSha = "main";
+        var newDeployment = new NewDeployment(gitSha)
+        {
+            AutoMerge = false,
+            Description = "",
+            Environment = environment,
+            RequiredContexts = new Collection<string>() // Skip status checks
+        };
+        var deployment = await _client.Repository.Deployment.Create(_owner, _repo, newDeployment);
+    }
+
+    public async Task<IReadOnlyList<ReleaseDeployment>> GetDeployments()
     {
         var releaseDeployments = new List<ReleaseDeployment>();
         var deployments = await _client.Repository.Deployment.GetAll(_owner, _repo);

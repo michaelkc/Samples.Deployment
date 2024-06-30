@@ -6,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveWebAssemblyComponents();
+    .AddInteractiveServerComponents();
+    //.AddInteractiveWebAssemblyComponents();
 builder.Services.AddSingleton<DeploymentMatrixService>();
 builder.Services.AddSingleton<ReleaseDeploymentsRepository>();
 builder.Services.AddSingleton(new GitHubClient(new ProductHeaderValue("BlazorPus"))
@@ -33,7 +34,8 @@ app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
-    .AddInteractiveWebAssemblyRenderMode()
+    .AddInteractiveServerRenderMode()
+    //.AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(blazorpus.Client._Imports).Assembly);
 
 app.Run();
